@@ -7,7 +7,8 @@ import static io.restassured.RestAssured.given;
 public class UserSteps {
     private String baseURI;
     private static final String USER_CREATION_API = "/api/auth/register";
-    private static final String DELETE_USER = "/api/auth/user";
+    private static final String DELETE_USER_API = "/api/auth/user";
+    private static final String AUTH_USER_API = "/api/auth/login";
 
     public UserSteps(String baseURI) {
         this.baseURI = baseURI;
@@ -48,7 +49,21 @@ public class UserSteps {
                 .log().all()
                 .header("Authorization",token)
                 .when()
-                .delete(DELETE_USER);
+                .delete(DELETE_USER_API);
+    }
+
+    @Step("Авторизация с существующим пользователем")
+    public Response authRealUser(String email, String password) {
+        UserData user = new UserData(email,password);
+        Response auth = given()
+                .baseUri(baseURI)
+                .log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(AUTH_USER_API);
+        return auth;
     }
 
 }
