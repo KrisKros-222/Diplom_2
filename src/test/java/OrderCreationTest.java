@@ -1,3 +1,4 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -23,7 +24,8 @@ public class OrderCreationTest {
     }
 
     @Test
-    @DisplayName("Создание заказа с ингредиентами авторизованным пользователем")
+    @DisplayName("Создание заказа авторизованным пользователем")
+    @Description("Для успешного создания заказа необходимо авторизоваться и передать в теле запроса необходимые ингредиенты")
     public void createOrderWithIngredientsAuth() {
         Response response = order.getListOfIngredients();
         String firstId = order.getIngredientsId(response,0);
@@ -35,6 +37,7 @@ public class OrderCreationTest {
 
     @Test
     @DisplayName("Создание заказа без ингредиентов авторизованным пользователем")
+    @Description("Если не передать ни один ингредиент, вернётся код ответа 400 Bad Request")
     public void createOrderWithoutIngredientsAuth() {
         Response newOrder = order.createOrderWithAuth(creation, List.of(" "));
         newOrder.then().statusCode(400)
@@ -44,6 +47,8 @@ public class OrderCreationTest {
 
     @Test
     @DisplayName("Создание заказа с неверным хешем ингредиентов авторизованным пользователем")
+    @Description("Если в запросе передан невалидный хеш ингредиента, вернётся код ответа 500\n" +
+            "Internal Server Error")
     public void createOrderWithWrongHashAuth() {
         Response newOrder = order.createOrderWithAuth(creation, List.of(WRONG_HASH));
         newOrder.then().statusCode(500);
@@ -51,6 +56,7 @@ public class OrderCreationTest {
 
     @Test
     @DisplayName("Создание заказа пользователем без авторизации")
+    @Description("Создать заказ может только авторизованный пользователь, следовательно, появится ошибка")
     public void createOrderWithoutAuth() {
         Response response = order.getListOfIngredients();
         String firstId = order.getIngredientsId(response,0);

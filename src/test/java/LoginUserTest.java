@@ -1,3 +1,4 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -16,7 +17,8 @@ public class LoginUserTest {
     }
 
     @Test
-    @DisplayName("Проверка успешной авторизации пользователя")
+    @DisplayName("Успешной авторизация пользователя")
+    @Description("Для успешной авторизации необходимо передать существующие email и password в теле запроса")
     public void loginSuccessTest() {
         Response auth = user.authRealUser("sjsjsj@yandex.ru","6565656");
         auth.then().statusCode(200);
@@ -24,7 +26,8 @@ public class LoginUserTest {
     }
 
     @Test
-    @DisplayName("При неверной почте не авторизуется")
+    @DisplayName("Ошибка авторизации с неверной почтой")
+    @Description("Если логин неверный, вернётся код ответа 401 Unauthorized")
     public void loginWithIncorrectEmail() {
         Response auth = user.authRealUser("hahaha@mail.ru","6565656");
         auth.then().statusCode(401);
@@ -32,7 +35,8 @@ public class LoginUserTest {
     }
 
     @Test
-    @DisplayName("При неверной почте не авторизуется")
+    @DisplayName("Ошибка авторизации с неверным паролем")
+    @Description("Если пароль неверный, вернётся код ответа 401 Unauthorized")
     public void loginWithIncorrectPassword() {
         Response auth = user.authRealUser("sjsjsj@yandex.ru","87987");
         auth.then().statusCode(401);

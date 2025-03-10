@@ -1,3 +1,4 @@
+import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.junit.After;
@@ -18,7 +19,8 @@ public class ChangeUserDataTest {
     }
 
     @Test
-    @DisplayName("Проверяем, что авторизированный пользователь может сменить почту")
+    @DisplayName("Возможность смены почты авторизованным пользователем")
+    @Description("Для успешного изменения данных необходимо авторизоваться, а также передать в теле запроса параметр с новыми данными")
     public void changeEmailWithAuth() {
         user.authRealUser("sjsjsj@yandex.ru","6565656");
         Response change = user.changeEmailAuthUser(creation,"mkmk@mail.ru");
@@ -27,7 +29,9 @@ public class ChangeUserDataTest {
     }
 
     @Test
-    @DisplayName("Меняем почту на существующую")
+    @DisplayName("Появление ошибки при изменении почты на существующую")
+    @Description("Если передать почту, которая уже используется, вернётся код ответа 403\n" +
+            "Forbidden")
     public void changeOnExistEmailWithAuth() {
         user.authRealUser("sjsjsj@yandex.ru","6565656");
         Response change = user.changeEmailAuthUser(creation,"sjsjsj@yandex.ru");
@@ -36,7 +40,8 @@ public class ChangeUserDataTest {
     }
 
     @Test
-    @DisplayName("Проверяем, что авторизированный пользователь может сменить имя")
+    @DisplayName("Возможность смены имени авторизованным пользователем")
+    @Description("Для успешного изменения данных необходимо авторизоваться, а также передать в теле запроса параметр с новыми данными")
     public void changeNameWithAuth() {
         user.authRealUser("sjsjsj@yandex.ru","6565656");
         Response change = user.changeNameAuthUser(creation,"Sasha");
@@ -45,7 +50,8 @@ public class ChangeUserDataTest {
     }
 
     @Test
-    @DisplayName("Проверяем, что не авторизированный пользователь может сменить почту")
+    @DisplayName("Появление ошибки при смене почты неавторизованным пользователем")
+    @Description("Если выполнить запрос без авторизации, вернётся код ответа 401 Unauthorized")
     public void changeEmailWithoutAuth() {
         user.authRealUser("sjsjsj@yandex.ru","6565656");
         Response change = user.changeEmailNonAuthUser(creation,"mkmk@mail.ru");
@@ -54,7 +60,8 @@ public class ChangeUserDataTest {
     }
 
     @Test
-    @DisplayName("Проверяем, что не авторизированный пользователь может сменить имя")
+    @DisplayName("Появление ошибки при смене имени неавторизованным пользователем")
+    @Description("Если выполнить запрос без авторизации, вернётся код ответа 401 Unauthorized")
     public void changeNameWithoutAuth() {
         user.authRealUser("sjsjsj@yandex.ru","6565656");
         Response change = user.changeNameNonAuthUser(creation,"Sasha");

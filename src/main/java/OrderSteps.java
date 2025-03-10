@@ -10,6 +10,7 @@ public class OrderSteps {
     private String baseURI;
     private static final String ORDER_CREATION_API = "/api/orders";
     private static final String INGREDIENTS_LIST_API = "/api/ingredients";
+    private static final String GET_ORDER_LIST_API = "/api/orders";
 
     public OrderSteps(String baseURI) {
         this.baseURI = baseURI;
@@ -56,4 +57,25 @@ public class OrderSteps {
         return newOrder;
     }
 
+    @Step("Получение списка заказов с авторизацией")
+    public Response getOrdersAuth(Response creation) {
+        String token = creation.then().extract().jsonPath().getString("accessToken");
+        Response orderList = given()
+                .baseUri(baseURI)
+                .header("Authorization",token)
+                .header("Content-type","application/json")
+                .when()
+                .get(GET_ORDER_LIST_API);
+        return orderList;
+    }
+
+    @Step("Получение списка заказов без авторизации")
+    public Response getOrdersWithoutAuth() {
+        Response orderList = given()
+                .baseUri(baseURI)
+                .header("Content-type","application/json")
+                .when()
+                .get(GET_ORDER_LIST_API);
+        return orderList;
+    }
 }
