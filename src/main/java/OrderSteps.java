@@ -1,10 +1,11 @@
-import ingredients.ResponseData;
+import ingredients.*;
 import io.qameta.allure.Step;
 import io.restassured.response.Response;
 
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.is;
 
 public class OrderSteps {
     private String baseURI;
@@ -25,11 +26,16 @@ public class OrderSteps {
         return response;
     }
 
+    @Step("Проверяем тело успешного ответа")
+    public void checkBody(Response creation, String path, Boolean text) {
+        creation.then().assertThat().body(path,is(text));
+    }
+
     @Step("Получение конкретных ингредиентов")
     public String getIngredientsId (Response response, int number) {
         response.then().extract().response();
         ResponseData responseData = response.as(ResponseData.class);
-        String id = responseData.getData().get(number).getId();
+        String id = responseData.getData().get(number).get_id();
         return id;
     }
 
@@ -39,6 +45,7 @@ public class OrderSteps {
         OrderData order = new OrderData(ingredients);
         Response newOrder = given()
                 .baseUri(baseURI)
+                .log().all()
                 .header("Authorization",token)
                 .header("Content-type","application/json")
                 .body(order)
@@ -46,7 +53,7 @@ public class OrderSteps {
         return newOrder;
     }
 
-    @Step("Создание заказа с ингредиентами yt авторизированного пользователя ")
+    @Step("Создание заказа с ингредиентами не авторизированного пользователя ")
     public Response createOrderWithoutAuth (List<String> ingredients) {
         OrderData order = new OrderData(ingredients);
         Response newOrder = given()

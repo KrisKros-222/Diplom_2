@@ -1,6 +1,8 @@
-import changes.UserEmailChange;
-import changes.UserNameChange;
+import changes.*;
+
+import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
+import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import static org.hamcrest.Matchers.is;
 
@@ -13,13 +15,68 @@ public class UserSteps {
     private static final String AUTH_USER_API = "/api/auth/login";
     private static final String CHANGE_DATA_USER_API = "/api/auth/user";
 
+    Faker faker = new Faker();
+    String email = faker.internet().emailAddress();
+    String name = faker.name().firstName();
+    String password = faker.internet().password(6,8);
+    String changedEmail = faker.internet().emailAddress();
+    String changedName = faker.name().firstName();
+    String wrongEmail = faker.internet().emailAddress();
+    String wrongPassword = faker.internet().password(6,8);
+
     public UserSteps(String baseURI) {
         this.baseURI = baseURI;
     }
 
+    public void setup(){
+        RestAssured.baseURI = baseURI;
+    }
+
     @Step("Отправляем POST запрос на ручку /api/auth/register")
-    public Response createUser(String email, String password, String name) {
+    public Response createUser() {
         UserData user = new UserData(email, password, name);
+        Response creation = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(USER_CREATION_API);
+        return creation;
+    }
+
+    @Step("Создаем пользователя без почты")
+    public Response createUserWithoutEmail() {
+        UserData user = new UserData(" ", password, name);
+        Response creation = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(USER_CREATION_API);
+        return creation;
+    }
+
+    @Step("Создаем пользователя без пароля")
+    public Response createUserWithoutPassword() {
+        UserData user = new UserData(email, " ", name);
+        Response creation = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(USER_CREATION_API);
+        return creation;
+    }
+
+    @Step("Создаем пользователя без имени")
+    public Response createUserWithoutName() {
+        UserData user = new UserData(email, password, " ");
         Response creation = given()
                 .baseUri(baseURI)
                 //.log().all()
@@ -56,7 +113,7 @@ public class UserSteps {
     }
 
     @Step("Авторизация с существующим пользователем")
-    public Response authRealUser(String email, String password) {
+    public Response authRealUser() {
         UserData user = new UserData(email,password);
         Response auth = given()
                 .baseUri(baseURI)
@@ -69,9 +126,51 @@ public class UserSteps {
         return auth;
     }
 
+    @Step("Авторизация с некорректной почтой")
+    public Response authWithIncorrectEmail() {
+        UserData user = new UserData(wrongEmail,password);
+        Response auth = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(AUTH_USER_API);
+        return auth;
+    }
+
+    @Step("Авторизация с некорректным паролем")
+    public Response authWithIncorrectPassword() {
+        UserData user = new UserData(wrongEmail,wrongPassword);
+        Response auth = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(AUTH_USER_API);
+        return auth;
+    }
+
+    @Step("Создаем пользователя с новой почтой")
+    public Response createSecondUser() {
+        UserData user = new UserData(changedEmail, password, name);
+        Response creation = given()
+                .baseUri(baseURI)
+                //.log().all()
+                .header("Content-type","application/json")
+                .and()
+                .body(user)
+                .when()
+                .post(USER_CREATION_API);
+        return creation;
+    }
+
     @Step("Проверка изменения данных почты авторизованного пользователя")
-    public Response changeEmailAuthUser(Response creation, String email) {
-        UserEmailChange newEmail = new UserEmailChange(email);
+    public Response changeEmailAuthUser(Response creation) {
+        UserEmailChange newEmail = new UserEmailChange(changedEmail);
         String token = creation.then().extract().jsonPath().getString("accessToken");
 
         Response change = given()
@@ -85,9 +184,19 @@ public class UserSteps {
         return change;
     }
 
+    @Step("")
+    public void checkBodyWithChangedEmail(Response change) {
+        change.then().assertThat().body("user.email",is(changedEmail));
+    }
+
+    @Step("")
+    public void checkBodyWithChangedName(Response change) {
+        change.then().assertThat().body("user.name",is(changedName));
+    }
+
     @Step("Проверка изменения данных почты авторизованного пользователя")
-    public Response changeNameAuthUser(Response creation, String name) {
-        UserNameChange newName = new UserNameChange(name);
+    public Response changeNameAuthUser(Response creation) {
+        UserNameChange newName = new UserNameChange(changedName);
         String token = creation.then().extract().jsonPath().getString("accessToken");
 
         Response change = given()
@@ -102,8 +211,8 @@ public class UserSteps {
     }
 
     @Step("Проверка изменения данных почты не авторизованного пользователя")
-    public Response changeEmailNonAuthUser(Response creation, String email) {
-        UserEmailChange newEmail = new UserEmailChange(email);
+    public Response changeEmailNonAuthUser(Response creation) {
+        UserEmailChange newEmail = new UserEmailChange(changedEmail);
 
         Response change = given()
                 .baseUri(baseURI)
@@ -116,8 +225,8 @@ public class UserSteps {
     }
 
     @Step("Проверка изменения данных почты не авторизованного пользователя")
-    public Response changeNameNonAuthUser(Response creation, String name) {
-        UserNameChange newName = new UserNameChange(name);
+    public Response changeNameNonAuthUser(Response creation) {
+        UserNameChange newName = new UserNameChange(changedName);
 
         Response change = given()
                 .baseUri(baseURI)

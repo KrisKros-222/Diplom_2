@@ -7,19 +7,20 @@ import org.junit.Test;
 
 public class UserCreationTest {
     private static final String BASE_URI = "https://stellarburgers.nomoreparties.site";
-    private UserSteps user;
     private Response creation;
+    UserSteps user = new UserSteps(BASE_URI);
+
 
     @Before
     public void before() {
-        user = new UserSteps(BASE_URI);
+        user.setup();
     }
 
     @Test
     @DisplayName("Создание нового пользователя")
     @Description("При передаче всех необходимых параметров можно создать нового пользователя")
     public void createUser() {
-        creation = user.createUser("kjkj@yandex.ru","555656","Sasha");
+        creation = user.createUser();
         creation.then().statusCode(200);
         user.checkBody(creation,"success",true);
     }
@@ -27,36 +28,39 @@ public class UserCreationTest {
     @Test
     @DisplayName("Создание уже существующего пользователя")
     @Description("Если пользователь существует, вернётся код ответа 403 Forbidden")
-    public void createExistingUser() {
-        creation = user.createUser("kjkj@yandex.ru","555656","Sasha");
-        Response exitingUser = user.createUser("kjkj@yandex.ru","555656","Sasha");
+    public void createExistingUserTest() {
+        creation = user.createUser();
+        Response exitingUser = user.createUser();
         exitingUser.then().statusCode(403);
         user.checkErrorBody(exitingUser,"success",false,"message","User already exists");
     }
 
+    //Сообщение в теле ответа не совпадает с ожидаемым
     @Test
     @DisplayName("Создание пользователя без почты")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
-    public void createWithoutEmail() {
-        creation = user.createUser(" ","3333","Ola");
+    public void createWithoutEmailTest() {
+        creation = user.createUserWithoutEmail();
         creation.then().statusCode(403);
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
     }
 
+    // Код 200 и успешное создание пользователя без пароля
     @Test
     @DisplayName("Создание пользователя без пароля")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
-    public void createWithoutPassword() {
-        creation = user.createUser("kjkj@yandex.ru"," ","Ola");
+    public void createWithoutPasswordTest() {
+        creation = user.createUserWithoutPassword();
         creation.then().statusCode(403);
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
     }
 
+    // Код 200 и успешное создание пользователя без имени
     @Test
     @DisplayName("Создание пользователя без имени")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
-    public void createWithoutName() {
-        creation = user.createUser("kjkj@yandex.ru","8888"," ");
+    public void createWithoutNameTest() {
+        creation = user.createUserWithoutName();
         creation.then().statusCode(403);
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
     }

@@ -7,20 +7,20 @@ import org.junit.Test;
 
 public class LoginUserTest {
     private static final String BASE_URI = "https://stellarburgers.nomoreparties.site";
-    private UserSteps user;
     private Response creation;
+    UserSteps user = new UserSteps(BASE_URI);
 
     @Before
     public void before() {
-        user = new UserSteps(BASE_URI);
-        creation = user.createUser("sjsjsj@yandex.ru","6565656","Kolya");
+        user.setup();
+        creation = user.createUser();
     }
 
     @Test
     @DisplayName("Успешной авторизация пользователя")
     @Description("Для успешной авторизации необходимо передать существующие email и password в теле запроса")
     public void loginSuccessTest() {
-        Response auth = user.authRealUser("sjsjsj@yandex.ru","6565656");
+        Response auth = user.authRealUser();
         auth.then().statusCode(200);
         user.checkBody(auth,"success",true);
     }
@@ -28,8 +28,8 @@ public class LoginUserTest {
     @Test
     @DisplayName("Ошибка авторизации с неверной почтой")
     @Description("Если логин неверный, вернётся код ответа 401 Unauthorized")
-    public void loginWithIncorrectEmail() {
-        Response auth = user.authRealUser("hahaha@mail.ru","6565656");
+    public void loginWithIncorrectEmailTest() {
+        Response auth = user.authWithIncorrectEmail();
         auth.then().statusCode(401);
         user.checkErrorBody(auth,"success",false,"message","email or password are incorrect");
     }
@@ -37,8 +37,8 @@ public class LoginUserTest {
     @Test
     @DisplayName("Ошибка авторизации с неверным паролем")
     @Description("Если пароль неверный, вернётся код ответа 401 Unauthorized")
-    public void loginWithIncorrectPassword() {
-        Response auth = user.authRealUser("sjsjsj@yandex.ru","87987");
+    public void loginWithIncorrectPasswordTest() {
+        Response auth = user.authWithIncorrectPassword();
         auth.then().statusCode(401);
         user.checkErrorBody(auth,"success",false,"message","email or password are incorrect");
     }

@@ -1,3 +1,4 @@
+import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
@@ -12,25 +13,30 @@ import static org.hamcrest.Matchers.contains;
 
 public class GetUserOrdersTest {
     private static final String BASE_URI = "https://stellarburgers.nomoreparties.site";
-    private UserSteps user;
     private OrderSteps order;
     private Response creation;
+    UserSteps user = new UserSteps(BASE_URI);
+
+    Faker faker = new Faker();
+    String email = faker.internet().emailAddress();
+    String name = faker.name().firstName();
+    String password = faker.internet().password(6,8);
 
     @Before
     public void before() {
-        user = new UserSteps(BASE_URI);
+        user.setup();
         order = new OrderSteps(BASE_URI);
-        creation = user.createUser("sjsjsj@yandex.ru","6565656","Kolya");
+        creation = user.createUser();
     }
 
     @Test
     @DisplayName("Получение списка заказов конкретного авторизованного пользователя ")
     @Description("При успешном подключении вернётся список последних заказов пользователя, включая данные о составе заказа")
-    public void getOrderWithAuth() {
+    public void getOrderWithAuthTest() {
         Response response = order.getListOfIngredients();
         String firstId = order.getIngredientsId(response,0);
         String secondId = order.getIngredientsId(response,1);
-        order.createOrderWithoutAuth(List.of(firstId,secondId));
+        order.createOrderWithAuth(creation,List.of(firstId,secondId));
 
         Response orderList = order.getOrdersAuth(creation);
         orderList.then().statusCode(200)
@@ -42,7 +48,7 @@ public class GetUserOrdersTest {
     @Test
     @DisplayName("Получение списка заказов конкретного пользователя без авторизации")
     @Description("Если выполнить запрос без авторизации, вернётся код ответа 401 Unauthorized")
-    public void getOrderWithoutAuth() {
+    public void getOrderWithoutAuthTest() {
         Response response = order.getListOfIngredients();
         String firstId = order.getIngredientsId(response,0);
         String secondId = order.getIngredientsId(response,1);
