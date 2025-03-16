@@ -35,7 +35,7 @@ public class OrderSteps {
     public String getIngredientsId (Response response, int number) {
         response.then().extract().response();
         ResponseData responseData = response.as(ResponseData.class);
-        String id = responseData.getData().get(number).get_id();
+        String id = responseData.getData().get(number).getId();
         return id;
     }
 

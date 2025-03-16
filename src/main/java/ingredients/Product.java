@@ -1,7 +1,10 @@
 package ingredients;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Product {
-    private String _id;
+    @JsonProperty("_id")
+    private String id;
     private String name;
     private String type;
     private int proteins;
@@ -12,18 +15,15 @@ public class Product {
     private String image;
     private String image_mobile;
     private String image_large;
-    private int __v;
+    @JsonProperty("__v")
+    private int v;
 
-    public void setId(String _id) {
-        this._id = _id;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String get_id() {
-        return _id;
-    }
-
-    public void set_id(String _id) {
-        this._id = _id;
+    public String getId() {
+        return id;
     }
 
     public String getName() {
@@ -106,12 +106,12 @@ public class Product {
         this.image_large = image_large;
     }
 
-    public int get__v() {
-        return __v;
+    public int getV() {
+        return v;
     }
 
-    public void set__v(int __v) {
-        this.__v = __v;
+    public void setV(int v) {
+        this.v = v;
     }
 
 }

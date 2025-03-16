@@ -1,4 +1,3 @@
-import com.github.javafaker.Faker;
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
@@ -16,11 +15,6 @@ public class GetUserOrdersTest {
     private OrderSteps order;
     private Response creation;
     UserSteps user = new UserSteps(BASE_URI);
-
-    Faker faker = new Faker();
-    String email = faker.internet().emailAddress();
-    String name = faker.name().firstName();
-    String password = faker.internet().password(6,8);
 
     @Before
     public void before() {
