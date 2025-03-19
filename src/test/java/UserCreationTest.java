@@ -1,7 +1,6 @@
 import io.qameta.allure.Description;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -23,6 +22,7 @@ public class UserCreationTest {
         creation = user.createUser();
         creation.then().statusCode(200);
         user.checkBody(creation,"success",true);
+        user.getTokenAndDeleteUser(creation);
     }
 
     @Test
@@ -33,9 +33,9 @@ public class UserCreationTest {
         Response exitingUser = user.createUser();
         exitingUser.then().statusCode(403);
         user.checkErrorBody(exitingUser,"success",false,"message","User already exists");
+        user.getTokenAndDeleteUser(creation);
     }
 
-    //Сообщение в теле ответа не совпадает с ожидаемым
     @Test
     @DisplayName("Создание пользователя без почты")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
@@ -45,7 +45,6 @@ public class UserCreationTest {
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
     }
 
-    // Код 200 и успешное создание пользователя без пароля
     @Test
     @DisplayName("Создание пользователя без пароля")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
@@ -55,7 +54,6 @@ public class UserCreationTest {
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
     }
 
-    // Код 200 и успешное создание пользователя без имени
     @Test
     @DisplayName("Создание пользователя без имени")
     @Description("Если нет одного из полей, вернётся код ответа 403 Forbidden")
@@ -63,10 +61,5 @@ public class UserCreationTest {
         creation = user.createUserWithoutName();
         creation.then().statusCode(403);
         user.checkErrorBody(creation,"success",false,"message","Email, password and name are required fields");
-    }
-
-    @After
-    public void after() {
-        user.getTokenAndDeleteUser(creation);
     }
 }

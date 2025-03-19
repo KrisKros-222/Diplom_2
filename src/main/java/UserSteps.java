@@ -4,6 +4,9 @@ import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
+import users.WithoutLogin;
+import users.WithoutPassword;
+
 import static org.hamcrest.Matchers.is;
 
 import static io.restassured.RestAssured.given;
@@ -48,7 +51,7 @@ public class UserSteps {
 
     @Step("Создаем пользователя без почты")
     public Response createUserWithoutEmail() {
-        UserData user = new UserData(" ", password, name);
+        WithoutLogin user = new WithoutLogin(password, name);
         Response creation = given()
                 .baseUri(baseURI)
                 //.log().all()
@@ -62,7 +65,7 @@ public class UserSteps {
 
     @Step("Создаем пользователя без пароля")
     public Response createUserWithoutPassword() {
-        UserData user = new UserData(email, " ", name);
+        WithoutPassword user = new WithoutPassword(email,name);
         Response creation = given()
                 .baseUri(baseURI)
                 //.log().all()
@@ -76,7 +79,7 @@ public class UserSteps {
 
     @Step("Создаем пользователя без имени")
     public Response createUserWithoutName() {
-        UserData user = new UserData(email, password, " ");
+        UserData user = new UserData(email, password);
         Response creation = given()
                 .baseUri(baseURI)
                 //.log().all()
