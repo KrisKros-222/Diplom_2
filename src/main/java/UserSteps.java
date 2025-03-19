@@ -22,6 +22,7 @@ public class UserSteps {
     String email = faker.internet().emailAddress();
     String name = faker.name().firstName();
     String password = faker.internet().password(6,8);
+    String SecondEmail = faker.internet().emailAddress();
     String changedEmail = faker.internet().emailAddress();
     String changedName = faker.name().firstName();
     String wrongEmail = faker.internet().emailAddress();
@@ -159,7 +160,7 @@ public class UserSteps {
 
     @Step("Создаем пользователя с новой почтой")
     public Response createSecondUser() {
-        UserData user = new UserData(changedEmail, password, name);
+        UserData user = new UserData(SecondEmail, password, name);
         Response creation = given()
                 .baseUri(baseURI)
                 //.log().all()
@@ -174,6 +175,22 @@ public class UserSteps {
     @Step("Проверка изменения данных почты авторизованного пользователя")
     public Response changeEmailAuthUser(Response creation) {
         UserEmailChange newEmail = new UserEmailChange(changedEmail);
+        String token = creation.then().extract().jsonPath().getString("accessToken");
+
+        Response change = given()
+                .baseUri(baseURI)
+                .log().all()
+                .header("Content-type","application/json")
+                .header("Authorization",token)
+                .body(newEmail)
+                .when()
+                .patch(CHANGE_DATA_USER_API);
+        return change;
+    }
+
+    @Step("Проверка изменения данных почты авторизованного пользователя")
+    public Response changeSecondUserEmail(Response creation) {
+        UserEmailChange newEmail = new UserEmailChange(SecondEmail);
         String token = creation.then().extract().jsonPath().getString("accessToken");
 
         Response change = given()

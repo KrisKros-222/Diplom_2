@@ -11,6 +11,7 @@ public class ChangeUserDataTest {
     private static final String BASE_URI = "https://stellarburgers.nomoreparties.site";
     private Response creation;
     UserSteps user = new UserSteps(BASE_URI);
+    Response secondUser;
 
     @Before
     public void before() {
@@ -32,12 +33,11 @@ public class ChangeUserDataTest {
     @DisplayName("Появление ошибки при изменении почты на существующую")
     @Description("Если передать почту, которая уже используется, вернётся код ответа 403 Forbidden")
     public void changeOnExistEmailWithAuthTest() {
-        Response secondUser = user.createSecondUser();
+        secondUser = user.createSecondUser();
         user.authRealUser();
-        Response change = user.changeEmailAuthUser(creation);
+        Response change = user.changeSecondUserEmail(creation);
         change.then().statusCode(403)
                 .and().assertThat().body("message", is("User with such email already exists"));
-        user.getTokenAndDeleteUser(secondUser);
     }
 
     @Test
@@ -73,5 +73,6 @@ public class ChangeUserDataTest {
     @After
     public void after() {
         user.getTokenAndDeleteUser(creation);
+        user.getTokenAndDeleteUser(secondUser);
     }
 }
