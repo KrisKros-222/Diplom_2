@@ -17,6 +17,7 @@ public class ChangeUserDataTest {
     public void before() {
         user.setup();
         creation = user.createUser();
+        secondUser = user.createSecondUser();
     }
 
     @Test
@@ -33,7 +34,6 @@ public class ChangeUserDataTest {
     @DisplayName("Появление ошибки при изменении почты на существующую")
     @Description("Если передать почту, которая уже используется, вернётся код ответа 403 Forbidden")
     public void changeOnExistEmailWithAuthTest() {
-        secondUser = user.createSecondUser();
         user.authRealUser();
         Response change = user.changeSecondUserEmail(creation);
         change.then().statusCode(403)

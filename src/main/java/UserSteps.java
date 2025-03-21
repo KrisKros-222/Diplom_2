@@ -43,7 +43,6 @@ public class UserSteps {
                 .baseUri(baseURI)
                 //.log().all()
                 .header("Content-type","application/json")
-                .and()
                 .body(user)
                 .when()
                 .post(USER_CREATION_API);
@@ -118,10 +117,10 @@ public class UserSteps {
 
     @Step("Авторизация с существующим пользователем")
     public Response authRealUser() {
-        UserData user = new UserData(email,password);
+        UserData user = new UserData(email,password,name);
         Response auth = given()
                 .baseUri(baseURI)
-                //.log().all()
+                .log().all()
                 .header("Content-type","application/json")
                 .and()
                 .body(user)
@@ -206,7 +205,7 @@ public class UserSteps {
 
     @Step("")
     public void checkBodyWithChangedEmail(Response change) {
-        change.then().assertThat().body("user.email",is(changedEmail));
+        change.then().log().all().assertThat().body("user.email",is(changedEmail));
     }
 
     @Step("")
